@@ -70,8 +70,6 @@ def check_super_user():
 
 def setup_parser():
     parser = argparse.ArgumentParser(description="Tool to interact with dual graphic cards using vga_switcheroo on linux.")
-    #parser.add_argument('status', help="Print your graphic cards state")
-    #parser.add_argument('action', choices=['status', 'switch'])
     subparser = parser.add_subparsers(dest='command')
     subparser.add_parser('status', help='Will print Graphic cards state')
     switch_subparser = subparser.add_parser(
