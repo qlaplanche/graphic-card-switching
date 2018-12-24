@@ -4,11 +4,12 @@
 
 import os
 import sys
+from time import sleep
+import argparse
 
 PWR_INDICATOR = "Pwr"
 SPLITTING_CHAR = ":"
 VGASWITCHEROO_FILEPATH = "/sys/kernel/debug/vgaswitcheroo/switch"
-
 
 class GraphicCardState():
     ON = "Pwr"
@@ -46,6 +47,17 @@ class GraphicCardSwitchingTool():
 
                 self.graphic_cards.append(tmp_graphcard)
 
+    def _switch_card(self):
+        pass
+    
+    def turn_off_unused_card(self):
+        with open(self.file_path,"w") as vga_file:
+            vga_file.write("OFF")
+    
+    def turn_on_unused_card(self):
+        with open(self.file_path,"w") as vga_file:
+            vga_file.write("ON")
+
     def get_state(self):
         for graph_card in self.graphic_cards:
             print(graph_card)
@@ -55,10 +67,30 @@ def check_super_user():
         sys.exit("This Script must be used by root.")
 
 
+
+def setup_parser():
+    parser = argparse.ArgumentParser(description="Tool to interact with dual graphic cards using vga_switcheroo on linux.")
+    #parser.add_argument('status', help="Print your graphic cards state")
+    #parser.add_argument('action', choices=['status', 'switch'])
+    subparser = parser.add_subparsers(dest='command')
+    subparser.add_parser('status', help='Will print Graphic cards state')
+    switch_subparser = subparser.add_parser(
+        'switch', help="Will help you turn one card ON or OFF")
+    switch_subparser.add_argument('desired_state', choices=['on', 'off'])
+    return parser.parse_args()
+
+
 def main():
     check_super_user()
     tool = GraphicCardSwitchingTool(VGASWITCHEROO_FILEPATH)
-    tool.get_state()
+    args = setup_parser()
+    if args.command == 'status':
+        tool.get_state()
+    elif args.command == 'switch':
+        if args.desired_state == 'off' :
+            tool.turn_off_unused_card()
+        elif args.desired_state == 'on' :
+            tool.turn_on_unused_card()
 
 if __name__ == "__main__":
     main()
